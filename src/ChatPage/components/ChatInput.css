@@ -1,0 +1,30 @@
+.chat-page-input-panel {
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    /* background-color: red; */
+    position: relative;
+}
+
+.chat-page-input-text {
+    height: 35px;
+    padding: 0;
+    width: 100%;
+    font-size: 14px;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.chat-page-input-button {
+    height: 35px;
+    border: none;
+    padding: 0;
+    width: 100px;
+    margin-left: 20px;
+    background-color: #3a6186;
+    color: white;
+    border-radius: 5px;
+}
