@@ -7,6 +7,7 @@ export default function ChatPage(){
 
     const baseURL = process.env.REACT_APP_BASE_URL;
     const scrollRef = useRef(null);
+
     
     const [talks, setTalks] = useState(()=>{
         return []
@@ -72,16 +73,17 @@ export default function ChatPage(){
     const handleSubmit = (event) => {
         event.preventDefault();
         if(event.target.firstChild.value){
+            const value = event.target.firstChild.value;
             setTalks((prev)=>{
                 return [
                     ...prev,
                     {
-                        question: event.target.firstChild.value,
+                        question: value,
                         answer: '',
                     }
                 ]
             });
-            setCurrentQuestion(event.target.firstChild.value);
+            setCurrentQuestion(value);
         }
     }
 
@@ -90,6 +92,7 @@ export default function ChatPage(){
             <div className='chat-page-title'>Ask Whatever GPT</div>
             <div className='chat-page-history' ref={scrollRef}>
                 {
+
                     talks.map((item, index) => {
                         return (
                             <div key={`chat_hist_${index}`}>
