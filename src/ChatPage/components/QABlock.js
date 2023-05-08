@@ -1,6 +1,10 @@
 import './QABlock.css';
 import { marked } from 'marked';
 
+marked.use({
+    pedantic: false,
+    gfm: true,
+});
 
 function QABlock({ name, text, alignment, iconColor, isMarkdown }) {
 

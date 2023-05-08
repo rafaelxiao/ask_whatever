@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import './ChatPage.css';
 import ChatInput from './components/ChatInput';
-import { AnswerBlock, QuestionBlock } from './components/OABlock';
+import ChatRole from './components/ChatRole';
+import ChatRoleSelector from './components/ChatRoleSelector';
+import { AnswerBlock, QuestionBlock } from './components/QABlock';
+import { roles, questionMark } from './models/Roles.js';
 
 export default function ChatPage(){
 
     const baseURL = process.env.REACT_APP_BASE_URL;
     const scrollRef = useRef(null);
-
     
     const [talks, setTalks] = useState(()=>{
         return []
@@ -15,6 +17,10 @@ export default function ChatPage(){
 
     const [currentQuestion, setCurrentQuestion] = useState("");
     const [parentMessageId, setParentMessageId] = useState("");
+    const [roleSelector, setRoleSelector] = useState(false);
+    const [role, setRole] = useState("Whatever");
+
+
 
     useEffect(()=>{
         if(scrollRef.current) {
@@ -25,8 +31,10 @@ export default function ChatPage(){
     useEffect(()=>{
         if(currentQuestion !== ''){
             try {
+                const currentQuestionWithRole = roles.find(item => item.name === role).prompt.replace(questionMark, currentQuestion);
+                console.log(currentQuestionWithRole);
                 const eventSource = new EventSource(
-                    `${baseURL}sendMessageStream?text=${currentQuestion.trim()}&parentMessageId=${parentMessageId}`,
+                    `${baseURL}sendMessageStream?text=${currentQuestionWithRole.trim()}&parentMessageId=${parentMessageId}`,
                 );
                 var res = '';
                 eventSource.onmessage = (event) => {
@@ -68,31 +76,43 @@ export default function ChatPage(){
                     console.log('Request error', error);
                 }
         }
-    }, [currentQuestion, baseURL, parentMessageId]);
+    }, [currentQuestion, baseURL, parentMessageId, role]);
 
     const handleSubmit = (event) => {
         event.preventDefault();
         if(event.target.firstChild.value){
-            const value = event.target.firstChild.value;
+            const question = event.target.firstChild.value;
             setTalks((prev)=>{
                 return [
                     ...prev,
                     {
-                        question: value,
+                        question: question,
                         answer: '',
+                        role: role
                     }
                 ]
             });
-            setCurrentQuestion(value);
+            setCurrentQuestion(question);
         }
+    }
+
+    const toggleRoleSelector = () => {
+        setRoleSelector((prev)=>!prev);
+    }
+
+    const roleHandler = (role) => {
+        setRole(role);
+        toggleRoleSelector();
     }
 
     return(
         <div className='chat-page'>
-            <div className='chat-page-title'>Ask Whatever GPT</div>
+            <div className='chat-page-title'>
+                <ChatRole onClick={toggleRoleSelector} roleName={role}/>
+            </div>
+
             <div className='chat-page-history' ref={scrollRef}>
                 {
-
                     talks.map((item, index) => {
                         return (
                             <div key={`chat_hist_${index}`}>
@@ -106,6 +126,9 @@ export default function ChatPage(){
             <div className='chat-page-input'>
                 <ChatInput handleSubmit={handleSubmit}/>
             </div>
+            
+            <ChatRoleSelector isOpen={roleSelector} roleHandler={roleHandler}/>
+
         </div>
     )
 }
