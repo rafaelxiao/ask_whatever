@@ -21,6 +21,9 @@ export default function ChatPage(){
     const [role, setRole] = useState("Whatever");
 
 
+    const sideBarRef = useRef();
+
+    
 
     useEffect(()=>{
         if(scrollRef.current) {
@@ -32,7 +35,7 @@ export default function ChatPage(){
         if(currentQuestion !== ''){
             try {
                 const currentQuestionWithRole = roles.find(item => item.name === role).prompt.replace(questionMark, currentQuestion);
-                console.log(currentQuestionWithRole);
+                // console.log(currentQuestionWithRole);
                 const eventSource = new EventSource(
                     `${baseURL}sendMessageStream?text=${currentQuestionWithRole.trim()}&parentMessageId=${parentMessageId}`,
                 );
@@ -77,6 +80,19 @@ export default function ChatPage(){
                 }
         }
     }, [currentQuestion, baseURL, parentMessageId, role]);
+
+    useEffect(()=>{
+        function handleClickOutside(event) {
+            if(sideBarRef.current && !sideBarRef.current.contains(event.target)) {
+                setRoleSelector(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return ()=>{
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+    }, [sideBarRef])
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -127,7 +143,10 @@ export default function ChatPage(){
                 <ChatInput handleSubmit={handleSubmit}/>
             </div>
             
-            <ChatRoleSelector isOpen={roleSelector} roleHandler={roleHandler}/>
+            <div ref={sideBarRef}>
+                <ChatRoleSelector isOpen={roleSelector} roleHandler={roleHandler}/>
+            </div>
+
 
         </div>
     )
